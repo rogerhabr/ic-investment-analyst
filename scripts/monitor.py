@@ -15,12 +15,14 @@ stdout: {"deal_id", "deal_update": {...fields to merge into the deal doc...},
          "run": {...runs row...}, "alerts": [...], "material": bool, "carried": [...]}
 
 Alert rules (references/state_and_scheduling.md): verdict change, a gate check newly FAIL or newly
-passing, P(margin call) up >= 2 pts, equity IRR moved >= 100 bps, refreshed input older than 36 h.
+passing, P(margin call) up >= 2 pts, equity IRR moved >= 100 bps, refreshed input more than 2 business
+days old. Each alert carries a deterministic `id` (deal, UTC day, type, subject): write it as alerts/<id>.
 """
 from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import datetime as dt
 import json
 import os
@@ -34,7 +36,7 @@ from montecarlo import (LombardInputs, ProjectMCSpec,     # noqa: E402
                         simulate_lombard, simulate_project)
 from risk_gate import DEFAULT_THRESHOLDS, evaluate        # noqa: E402
 
-STALE_HOURS = 36
+STALE_BUSINESS_DAYS = 2      # weekday-only age; a Friday print read on Monday is 1 business day old
 IRR_MOVE = 0.01
 PCALL_MOVE = 0.02
 
@@ -107,6 +109,15 @@ def _driver(checks: list[dict]) -> dict | None:
     return {"name": worst["metric"], "rule": worst["rule"], "value": worst["value"]}
 
 
+def _business_days(a: dt.date, b: dt.date) -> int:
+    """Weekdays strictly after a, up to and including b."""
+    n, d = 0, a
+    while d < b:
+        d += dt.timedelta(days=1)
+        n += d.weekday() < 5
+    return n
+
+
 def _parse_ts(s: str) -> dt.datetime:
     t = dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
     return t if t.tzinfo else t.replace(tzinfo=dt.timezone.utc)
@@ -131,8 +142,12 @@ def rescore(deal_doc: dict, overrides: dict, thresholds: dict, now: dt.datetime,
     name = d.get("name", deal_id)
     alerts, changed = [], []
 
+    day = now.astimezone(dt.timezone.utc).strftime("%Y%m%d")
+
     def alert(kind, sev, msg):
-        alerts.append({"deal_id": deal_id, "ts_utc": ts, "type": kind, "severity": sev, "message": msg,
+        # deterministic id: a re-run on the same day overwrites instead of duplicating
+        aid = f"{deal_id}-{day}-{kind}-{hashlib.sha1(msg.split(':', 1)[-1].split(' observed')[0].encode()).hexdigest()[:8]}"
+        alerts.append({"id": aid, "deal_id": deal_id, "ts_utc": ts, "type": kind, "severity": sev, "message": msg,
                        "acknowledged": False, "burn_in": burn_in})
         changed.append(msg)
 
@@ -160,9 +175,10 @@ def rescore(deal_doc: dict, overrides: dict, thresholds: dict, now: dt.datetime,
         if abs(di) >= IRR_MOVE:
             alert("metric_move", "info", f"{name}: equity IRR {'+' if di > 0 else ''}{di * 1e4:.0f} bps to {metrics['equity_irr']:.2%}")
     for path, asof in (overrides.get("as_of") or {}).items():
-        age_h = (now - _parse_ts(asof if "T" in asof else asof + "T23:59:59+00:00")).total_seconds() / 3600
-        if age_h > STALE_HOURS:
-            alert("stale_data", "warning", f"{name}: {path} observed {asof}, {age_h:.0f} h old")
+        obs = _parse_ts(asof if "T" in asof else asof + "T23:59:59+00:00").date()
+        bd = _business_days(obs, now.astimezone(dt.timezone.utc).date())
+        if bd > STALE_BUSINESS_DAYS:
+            alert("stale_data", "warning", f"{name}: {path} observed {asof}, {bd} business days old")
 
     prev_score = d.get("last_score")
     upd = {

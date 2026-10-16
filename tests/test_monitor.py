@@ -83,3 +83,13 @@ def test_watchlist_doc_rebuilds_stored_deal_from_deal_json_only():
         assert dd["key_metrics"][k] == pytest.approx(v, abs=1e-12)
     assert out["request_update"]["status"] == "done"
     assert out["request_update"]["result"]["verdict"] == doc["last_verdict"]
+
+
+def test_stale_counts_business_days_and_alert_ids_are_stable():
+    fri_print = {"set": {"benchmark_rate": 0.0428}, "as_of": {"benchmark_rate": "2026-10-16"}}
+    mon = dt.datetime(2026, 10, 19, 2, 45, tzinfo=dt.timezone.utc)
+    assert rescore(load("lagos-10mw-dc"), fri_print, THR, mon)["alerts"] == []          # Fri print on Mon: fresh
+    old = {"set": {"benchmark_rate": 0.0428}, "as_of": {"benchmark_rate": "2026-10-13"}}
+    a1 = rescore(load("lagos-10mw-dc"), old, THR, NOW)["alerts"]
+    a2 = rescore(load("lagos-10mw-dc"), old, THR, NOW + dt.timedelta(minutes=2))["alerts"]
+    assert a1 and [x["id"] for x in a1] == [x["id"] for x in a2]                         # rerun overwrites
