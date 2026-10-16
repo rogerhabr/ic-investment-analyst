@@ -72,6 +72,18 @@ class LombardInputs:
     haircut_cut_prob: float = 0.0   # prob the lender actually cuts once the trigger is hit
     proceeds_yield: float | None = None    # yield on what the loan buys (use of proceeds)
     proceeds_credit_loss: float = 0.0      # expected annual loss on the proceeds asset
+    # --- loan in a different currency from the collateral (e.g. CHF loan, USD funds) ---
+    # X_t = value of 1 unit of loan currency in collateral currency, X_0 = 1 (loan entered in collateral ccy).
+    # dX/X = loan_fx_drift dt + loan_fx_sigma dW_x,  corr(dW_x, dW_V) = loan_fx_corr. LTV = L*X / (V*adv).
+    # loan_fx_corr < 0 means the loan currency strengthens when collateral falls (CHF in risk-off).
+    loan_fx_sigma: float = 0.0
+    loan_fx_corr: float = 0.0
+    loan_fx_drift: float = 0.0             # 0 = random walk; (r_collateral_ccy - r_loan_ccy) = forward/UIP-consistent
+    fx_jump_lambda: float = 0.0            # jumps/yr in loan currency (e.g. a central-bank floor removal)
+    fx_jump_mean: float = 0.10             # mean log jump (+ = loan currency strengthens)
+    fx_jump_std: float = 0.05
+    income_paid_out: bool = False          # distributions leave the pledged account (paid to the client);
+                                           # interest is paid from them; collateral grows at price return only
 
 
 def simulate_lombard(p: LombardInputs) -> dict:
@@ -92,6 +104,12 @@ def simulate_lombard(p: LombardInputs) -> dict:
     liquidated = np.zeros(p.n_paths, bool)
     equity_at_liq = np.full(p.n_paths, np.nan)
     min_V = V.copy()
+    fx_on = p.loan_fx_sigma > 0 or p.fx_jump_lambda > 0 or p.loan_fx_drift != 0
+    X = np.ones(p.n_paths, float)
+    X_max = X.copy()
+    cash_out = np.zeros(p.n_paths, float)
+    kx = math.exp(p.fx_jump_mean + 0.5 * p.fx_jump_std ** 2) - 1
+    fx_drift = (p.loan_fx_drift - p.fx_jump_lambda * kx - 0.5 * p.loan_fx_sigma ** 2) * dt
 
     for i in range(n_steps):
         z = rng.standard_normal(p.n_paths)
@@ -100,14 +118,24 @@ def simulate_lombard(p: LombardInputs) -> dict:
             nj = rng.poisson(p.jump_lambda * dt, p.n_paths)
             logret += nj * p.jump_mean + np.sqrt(nj) * p.jump_std * rng.standard_normal(p.n_paths)
         V = np.where(alive, V * np.exp(logret), V)
+        if fx_on:  # extra draws only when the FX leg is on, so single-currency results are unchanged
+            zx = p.loan_fx_corr * z + math.sqrt(max(1 - p.loan_fx_corr ** 2, 0.0)) * rng.standard_normal(p.n_paths)
+            xret = fx_drift + p.loan_fx_sigma * math.sqrt(dt) * zx
+            if p.fx_jump_lambda > 0:
+                njx = rng.poisson(p.fx_jump_lambda * dt, p.n_paths)
+                xret += njx * p.fx_jump_mean + np.sqrt(njx) * p.fx_jump_std * rng.standard_normal(p.n_paths)
+            X = np.where(alive, X * np.exp(xret), X)
+            X_max = np.maximum(X_max, X)
         # income pays interest; shortfall capitalises; surplus reinvested
-        interest = L * p.loan_rate * dt
+        interest = L * X * p.loan_rate * dt           # in collateral currency
         income = V * p.income_yield * dt
-        if p.interest_paid_externally:
+        if p.income_paid_out:
+            cash_out += np.where(alive, income - interest, 0)   # distributions leave; interest paid from them
+        elif p.interest_paid_externally:
             ext_interest += np.where(alive, interest, 0)
             V = np.where(alive, V + income, V)           # income reinvested, loan flat
         else:
-            L = np.where(alive, L + np.maximum(interest - income, 0), L)
+            L = np.where(alive, L + np.maximum(interest - income, 0) / X, L)   # L kept in loan ccy units
             V = np.where(alive, V + np.maximum(income - interest, 0), V)
         min_V = np.minimum(min_V, V)
         if p.haircut_cut > 0 and p.haircut_cut_prob > 0:
@@ -115,17 +143,17 @@ def simulate_lombard(p: LombardInputs) -> dict:
             hit = trig & (rng.random(p.n_paths) < p.haircut_cut_prob)
             adv = np.where(hit, np.maximum(adv - p.haircut_cut, 0.01), adv)
             cut_done |= trig
-        ltv = L / (V * adv)
+        ltv = L * X / (V * adv)
         new_call = alive & ~called & (ltv >= p.ltv_call)
         first_call_t[new_call] = (i + 1) * dt
         called |= new_call
         liq = alive & (ltv >= p.ltv_liquidate)
-        equity_at_liq[liq] = V[liq] - L[liq]
+        equity_at_liq[liq] = V[liq] - L[liq] * X[liq]
         liquidated |= liq
         alive &= ~liq
 
     eq0 = p.portfolio_value - p.loan
-    eq_T = np.where(liquidated, equity_at_liq, V - L) - ext_interest
+    eq_T = np.where(liquidated, equity_at_liq, V - L * X) - ext_interest + cash_out
     ret = eq_T / eq0 - 1
     q05 = float(np.quantile(ret, 0.05))
     q01 = float(np.quantile(ret, 0.01))
@@ -149,15 +177,37 @@ def simulate_lombard(p: LombardInputs) -> dict:
         "var_99": -q01,
         "p_equity_loss": float((ret < 0).mean()),
         # carry on what the loan BUYS (the economic trade); falls back to collateral return if not given
+        # loan_fx_drift = forward cost of a foreign-currency loan: the rate saving is the price of the FX risk
         "carry_spread": ((p.proceeds_yield - p.proceeds_credit_loss - p.loan_rate)
-                         if p.proceeds_yield is not None else p.mu - p.loan_rate),
+                         if p.proceeds_yield is not None else p.mu - p.loan_rate) - p.loan_fx_drift,
+        "fx_rise_to_call": p.ltv_call * p.portfolio_value * p.advance_rate / p.loan - 1,
         "carry_spread_collateral": p.mu - p.loan_rate,
         "unlevered_expected_return": unlev_ret_mean,
+        "fx_loan_ccy_move_p95": float(np.quantile(X, 0.95) - 1) if fx_on else None,
+        "fx_loan_ccy_max_p95": float(np.quantile(X_max, 0.95) - 1) if fx_on else None,
+        "cash_out_mean": float(cash_out.mean()) if p.income_paid_out else None,
+        "closed_form_p_call_ratio": closed_form_call_with_fx(p)
+            if (fx_on and p.jump_lambda == 0 and p.fx_jump_lambda == 0 and p.haircut_cut == 0
+                and (p.income_paid_out or p.interest_paid_externally)) else None,
         "closed_form_p_call_no_jumps": barrier_hit_prob(
             p.portfolio_value, p.loan / (p.ltv_call * p.advance_rate),
             p.mu - (0 if p.interest_paid_externally else p.income_yield), p.sigma, p.horizon_years)
-            if p.jump_lambda == 0 and p.haircut_cut == 0 else None,
+            if p.jump_lambda == 0 and p.haircut_cut == 0 and not fx_on else None,
     }
+
+
+def closed_form_call_with_fx(p: LombardInputs) -> float:
+    """Loan fixed in its own currency, no jumps: W = V/X is GBM, call when W <= L0/(ltv_call*adv).
+    ln W drift = (mu_V - q_out - sV^2/2) - (mu_X - sX^2/2), vol^2 = sV^2 + sX^2 - 2 rho sV sX.
+    q_out = income_yield when income leaves the account (income_paid_out), else 0 (reinvested)."""
+    sv, sx, rho = p.sigma, p.loan_fx_sigma, p.loan_fx_corr
+    s2 = sv ** 2 + sx ** 2 - 2 * rho * sv * sx
+    s = math.sqrt(s2)
+    q = p.income_yield if p.income_paid_out else 0.0
+    nu = (p.mu - q - 0.5 * sv ** 2) - (p.loan_fx_drift - 0.5 * sx ** 2)
+    barrier = p.loan / (p.ltv_call * p.advance_rate)
+    b_eff = barrier * math.exp(-BGK * s * math.sqrt(1.0 / p.steps_per_year))   # discrete monitoring (BGK, down barrier)
+    return barrier_hit_prob(p.portfolio_value, b_eff, nu + 0.5 * s2, s, p.horizon_years)
 
 
 # ------------------------------------------------------------ project MC

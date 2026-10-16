@@ -265,3 +265,37 @@ def test_max_loan_for_gate_is_feasible_and_tight():
     above = MC.simulate_lombard(replace(p, loan=r["max_loan"] + 5000))
     assert at["p_margin_call"] <= 0.05 and at["ltv0_lending"] <= 0.55
     assert above["p_margin_call"] > 0.05 or above["ltv0_lending"] > 0.55 or above["p_forced_liquidation"] > 0.01
+
+
+# ---------------- loan in a different currency from the collateral (CHF loan vs USD funds)
+@pytest.mark.parametrize("sv,sx,rho,mx", [(0.09, 0.08, -0.3, 0.0), (0.12, 0.10, 0.0, 0.03), (0.0001, 0.10, 0.0, 0.0)])
+def test_fx_leg_matches_ratio_closed_form(sv, sx, rho, mx):
+    """Loan fixed in its own currency, interest paid externally, no jumps: V/X is GBM, so the daily MC
+    must match the continuous barrier formula on the ratio (BGK-corrected)."""
+    p = MC.LombardInputs(portfolio_value=100, loan=50, mu=0.05, sigma=sv, income_yield=0.0, loan_rate=0.0,
+                         ltv_call=0.62, ltv_liquidate=0.999, interest_paid_externally=True,
+                         loan_fx_sigma=sx, loan_fx_corr=rho, loan_fx_drift=mx, n_paths=60000, seed=5)
+    out = MC.simulate_lombard(p)
+    ref = out["closed_form_p_call_ratio"]
+    se = math.sqrt(max(ref * (1 - ref), 1e-4) / p.n_paths)
+    assert abs(out["p_margin_call"] - ref) < max(5 * se, 0.003), (out["p_margin_call"], ref)
+
+
+def test_fx_off_is_bit_identical_to_single_currency():
+    base = dict(portfolio_value=100, loan=50, sigma=0.12, ltv_call=0.65, ltv_liquidate=0.8, n_paths=5000)
+    a = MC.simulate_lombard(MC.LombardInputs(**base))
+    b = MC.simulate_lombard(MC.LombardInputs(**base, loan_fx_sigma=0.0, loan_fx_corr=-0.5))
+    assert a["p_margin_call"] == b["p_margin_call"] and a["cvar_95"] == b["cvar_95"]
+
+
+def test_negative_fx_corr_and_payout_raise_call_risk():
+    base = dict(portfolio_value=100, loan=50, mu=0.055, sigma=0.09, income_yield=0.08, loan_rate=0.01,
+                ltv_call=1.0, ltv_liquidate=1.1, advance_rate=0.70, interest_paid_externally=True,
+                loan_fx_sigma=0.08, n_paths=20000, seed=9)   # call when loan > lending value
+    r0 = MC.simulate_lombard(MC.LombardInputs(**base, loan_fx_corr=0.0))
+    r1 = MC.simulate_lombard(MC.LombardInputs(**base, loan_fx_corr=-0.5))
+    r2 = MC.simulate_lombard(MC.LombardInputs(**{**base, "interest_paid_externally": False},
+                                              loan_fx_corr=-0.5, income_paid_out=True))
+    assert r1["p_margin_call"] > r0["p_margin_call"]          # loan ccy rallies when collateral falls
+    assert r2["p_margin_call"] > r1["p_margin_call"]          # distributions leave: collateral drifts down
+    assert r2["cash_out_mean"] > 0

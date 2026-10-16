@@ -324,6 +324,8 @@ LOMBARD_INPUTS = [
     ("sigma", "Collateral volatility", "0.0%"),
     ("proceeds_yield", "Yield on use of proceeds (blank = none)", "0.00%"),
     ("proceeds_credit_loss", "Expected annual loss on proceeds asset", "0.00%"),
+    ("loan_fx_drift", "Loan-currency forward cost (expected appreciation vs collateral ccy, /yr; 0 = same ccy)", "0.00%"),
+    ("loan_fx_sigma", "Loan-currency volatility vs collateral ccy (0 = same ccy)", "0.0%"),
 ]
 
 
@@ -354,8 +356,9 @@ def build_lombard(lp: LombardInputs, stresses: list[dict], out: str, risk: dict 
         ("ltv_lend", "LTV on lending value (lender's test)", f"={N['loan']}/({N['portfolio_value']}*{N['advance_rate']})", "0.0%"),
         ("dd_call", "Portfolio fall to margin call", f"=1-({N['loan']}/({N['ltv_call']}*{N['advance_rate']}))/{N['portfolio_value']}", "0.0%"),
         ("dd_liq", "Portfolio fall to forced sale", f"=1-({N['loan']}/({N['ltv_liquidate']}*{N['advance_rate']}))/{N['portfolio_value']}", "0.0%"),
-        ("carry", "Carry spread (proceeds yield - loss - loan rate; else collateral return - loan rate)",
-         f"=IF(ISNUMBER({N['proceeds_yield']}),{N['proceeds_yield']}-{N['proceeds_credit_loss']}-{N['loan_rate']},{N['mu']}-{N['loan_rate']})", "0.00%"),
+        ("fx_call", "Loan-currency rise to margin call (collateral flat)", f"={N['ltv_call']}*{N['portfolio_value']}*{N['advance_rate']}/{N['loan']}-1", "0.0%"),
+        ("carry", "Carry spread (proceeds yield - loss - loan rate - loan-ccy forward cost)",
+         f"=IF(ISNUMBER({N['proceeds_yield']}),{N['proceeds_yield']}-{N['proceeds_credit_loss']},{N['mu']})-{N['loan_rate']}-{N['loan_fx_drift']}", "0.00%"),
         ("carry_ccy", f"Annual net carry ({cur})", None, "#,##0;(#,##0)"),
         ("max_loan_call", f"Max loan with zero headroom to call ({cur})", f"={N['ltv_call']}*{N['portfolio_value']}*{N['advance_rate']}", "#,##0"),
     ]
@@ -371,20 +374,20 @@ def build_lombard(lp: LombardInputs, stresses: list[dict], out: str, risk: dict 
     st = wb.create_sheet("Stress")
     st["A1"], st["A1"].font = "Deterministic stresses — shocks are inputs (blue); outcome is formula", BOLD
     hdr = ["Scenario", "Portfolio shock", "Advance-rate cut", "Stressed value", "Stressed LTV (lending)", "Status",
-           f"Cash to cure to call LTV ({cur})"]
+           f"Cash to cure to call LTV ({cur})", "Loan-currency move"]
     for j, h in enumerate(hdr):
         st.cell(3, 1 + j, h).font = BOLD
     for i, s_ in enumerate(stresses):
         r = 4 + i
         st.cell(r, 1, s_["name"])
-        for col, key in ((2, "shock"), (3, "advance_cut")):
+        for col, key in ((2, "shock"), (3, "advance_cut"), (8, "fx_shock")):
             c = st.cell(r, col, s_.get(key, 0.0)); c.font, c.fill, c.number_format = BLUE, INPUT_FILL, "0.0%"
         st.cell(r, 4, f"={N['portfolio_value']}*(1+B{r})").number_format = "#,##0"
-        st.cell(r, 5, f"={N['loan']}/(D{r}*MAX({N['advance_rate']}-C{r},0.01))").number_format = "0.0%"
+        st.cell(r, 5, f"={N['loan']}*(1+H{r})/(D{r}*MAX({N['advance_rate']}-C{r},0.01))").number_format = "0.0%"
         st.cell(r, 6, f"=IF(E{r}>={N['ltv_liquidate']},\"FORCED SALE\",IF(E{r}>={N['ltv_call']},\"MARGIN CALL\",\"OK\"))")
-        st.cell(r, 7, f"=MAX(0,{N['loan']}-{N['ltv_call']}*D{r}*MAX({N['advance_rate']}-C{r},0.01))").number_format = "#,##0"
+        st.cell(r, 7, f"=MAX(0,{N['loan']}*(1+H{r})-{N['ltv_call']}*D{r}*MAX({N['advance_rate']}-C{r},0.01))").number_format = "#,##0"
     st.column_dimensions["A"].width = 30
-    for col in "BCDEFG":
+    for col in "BCDEFGH":
         st.column_dimensions[col].width = 18
 
     rs = wb.create_sheet("Results")
@@ -398,6 +401,7 @@ def build_lombard(lp: LombardInputs, stresses: list[dict], out: str, risk: dict 
         ("Fall to margin call", f"={C['dd_call']}", py["drawdown_to_call"], "0.0000%"),
         ("Fall to forced sale", f"={C['dd_liq']}", py["drawdown_to_liquidation"], "0.0000%"),
         ("Carry spread", f"={C['carry']}", py["carry_spread"], "0.0000%"),
+        ("Loan-currency rise to call", f"={C['fx_call']}", py["fx_rise_to_call"], "0.0000%"),
     ])
     _write_risk(wb, risk, gate)
     wb.save(out)
