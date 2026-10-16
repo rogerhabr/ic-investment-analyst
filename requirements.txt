@@ -1,0 +1,7 @@
+numpy
+scipy
+openpyxl
+pyyaml
+pytest
+hypothesis
+numpy-financial

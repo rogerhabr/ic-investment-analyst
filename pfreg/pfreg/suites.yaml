@@ -1,0 +1,43 @@
+# Each suite = one model type. `flex` cases are applied to the SAME workbook by overwriting
+# the input cells, recalculating, and re-reading outputs. A model passes a suite only if it
+# passes every flex case - a model that is right only in its base case is not right.
+#
+# tol: absolute tolerances. money in $m; rates as fractions (5e-6 = 0.0005 pct-points).
+
+dcf:
+  kind: dcf
+  base: {fcf: [10, 10, 10, 10, 10], wacc: 0.08, g: 0.03, midyear: true}
+  inputs: [wacc, g]
+  metrics: [ev, pv_tv, pv_fcf]
+  flex:
+    base: {}
+    wacc9: {wacc: 0.09}
+    g2: {g: 0.02}
+
+pf1:            # sculpted debt, gearing cap on capex, single draw at COD
+  kind: pf
+  base: {cap_basis: capex, drawdown: single}
+  inputs: [cap]
+  metrics: [sculpt_capacity, debt, binding, min_dscr, llcr, equity_t2, int_y1, prin_y1,
+            project_irr, equity_irr]
+  flex:
+    base: {}
+    cap95: {cap: 0.95}          # DSCR becomes binding
+    cap50: {cap: 0.50}
+
+pf2:            # + pro-rata drawdown, capitalised IDC, upfront fee, DSRA; cap on total uses
+  kind: pf
+  base: {cap_basis: uses, drawdown: prorata, fee: 0.02, dsra: 0.5}
+  inputs: [cap, fee]
+  metrics: [debt, binding, total_uses, fee, idc, dsra, gearing, draw_t1, draw_t2,
+            equity_t1, equity_t2, ds_y1, int_y1, prin_y1, min_dscr, llcr, equity_irr]
+  flex:
+    base: {}
+    fee3: {fee: 0.03}
+    cap90: {cap: 0.90}          # DSCR binds: the case the plugin failed on 2026-10-06
+    cap60: {cap: 0.60}
+
+tol:
+  money: 0.001
+  ratio: 0.0001
+  rate: 0.000005

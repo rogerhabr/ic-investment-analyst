@@ -1,0 +1,6 @@
+numpy
+scipy
+openpyxl
+pyyaml
+pytest
+pywin32; sys_platform == "win32"

@@ -1,0 +1,10 @@
+{
+  "_comment": "DRAFT — Roger to confirm. SCOUT only searches inside this box.",
+  "asset_classes": ["dc_digital_infra", "energy_grid", "real_estate", "listed_equities", "lombard"],
+  "regions": ["GCC", "MENA", "Turkey", "West Africa", "US/EU listed"],
+  "ticket_usd": {"min": 250000, "max": 25000000},
+  "max_leverage_ltv": 0.50,
+  "exclusions": ["crypto", "unregulated funds", "products without audited NAV", "sanctioned jurisdictions"],
+  "themes_priority": ["AI/DC infrastructure", "grid & power for DC", "GCC listed infra & REITs", "USD/AED income"],
+  "correlation_warning": "Roger's core income is DC/AI-linked: flag any opportunity that adds to that factor."
+}

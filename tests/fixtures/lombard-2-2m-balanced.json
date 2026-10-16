@@ -1,0 +1,253 @@
+{
+  "asset_class": "lombard",
+  "country": "US",
+  "deal_json": {
+    "asset_class": "lombard",
+    "benchmark_rate": 0.0428,
+    "collateral": {
+      "bond_advance": 0.85,
+      "bond_mv": 880000,
+      "equity_advance": 0.7,
+      "equity_mv": 1320000,
+      "lending_value": 1672000,
+      "weighted_advance_rate": 0.76
+    },
+    "country": "US",
+    "currency": "USD",
+    "lombard": {
+      "advance_rate": 0.76,
+      "haircut_cut": 0,
+      "haircut_cut_prob": 0,
+      "haircut_trigger_dd": 0.1,
+      "horizon_years": 1,
+      "income_yield": 0.027,
+      "interest_paid_externally": true,
+      "loan": 1000000,
+      "loan_rate": 0.0548,
+      "ltv_call": 0.65,
+      "ltv_liquidate": 0.75,
+      "mu": 0.059,
+      "n_paths": 20000,
+      "portfolio_value": 2200000,
+      "proceeds_credit_loss": 0.01,
+      "proceeds_yield": 0.09,
+      "seed": 7,
+      "sigma": 0.1,
+      "steps_per_year": 252
+    },
+    "name": "Lombard 1.0M vs 60/40 into private credit",
+    "proceeds_fund": {
+      "gate_pct_nav_per_quarter": 0.05,
+      "liquidity": "quarterly",
+      "target_yield": 0.09,
+      "type": "evergreen private credit (BDC / interval-type)"
+    },
+    "scenarios": {
+      "bank_pitch_calm": {
+        "mu": 0.065,
+        "sigma": 0.08
+      },
+      "base": {},
+      "downside_stressed": {
+        "haircut_cut": 0.1,
+        "haircut_cut_prob": 0.5,
+        "haircut_trigger_dd": 0.1,
+        "sigma": 0.15
+      },
+      "kill_lender_discretion": {
+        "haircut_cut": 0.15,
+        "haircut_cut_prob": 1,
+        "haircut_trigger_dd": 0.05,
+        "sigma": 0.15
+      },
+      "pc_stress_loss": {
+        "proceeds_credit_loss": 0.03,
+        "proceeds_yield": 0.085
+      },
+      "rates_plus_200": {
+        "loan_rate": 0.0748
+      },
+      "regime_2022_corr": {
+        "jump_lambda": 0.5,
+        "jump_mean": -0.06,
+        "jump_std": 0.04,
+        "mu": 0.03,
+        "sigma": 0.11
+      }
+    },
+    "sources": {
+      "advance_rate": {
+        "confidence": "H",
+        "date": "2026-10-16",
+        "source": "derived: 0.6*70% + 0.4*85% from bank terms in prompt"
+      },
+      "benchmark_rate": {
+        "confidence": "M",
+        "date": "2026-10-14",
+        "source": "3M T-bill 4.28% close (slickcharts.com, 2026-10-14); FRED WGS3MO 4.23% wk of 2026-10-09 via marketxls"
+      },
+      "fund_gate_stress": {
+        "confidence": "M",
+        "date": "2026-09-08",
+        "source": "Advisor.ca Q1-2026 recap: OCIC 21.9%, OTIC 40.7%, ADS 11.2%, ASIF 11.6%, HLEND 9.3%, NHPIF 10.9% requests vs 5% caps; BCRED Q3-2026 ~10% requests, 5% cap (CRE Daily)"
+      },
+      "income_yield": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "assumption: eq div 1.8%, IG coupon 4.2% -> 2.7%"
+      },
+      "loan": {
+        "confidence": "H",
+        "date": "2026-10-16",
+        "source": "user statement / bank offer"
+      },
+      "loan_rate": {
+        "confidence": "M",
+        "date": "2026-10-14",
+        "source": "SOFR 3.88% (sofrrate.com, 2026-10-14) + 1.60% margin per user"
+      },
+      "ltv_call": {
+        "confidence": "M",
+        "date": "2026-10-16",
+        "source": "bank terms per user (credit agreement not seen)"
+      },
+      "ltv_liquidate": {
+        "confidence": "M",
+        "date": "2026-10-16",
+        "source": "bank terms per user (credit agreement not seen)"
+      },
+      "mu": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "assumption: 0.6*7.0% equity + 0.4*4.3% IG bonds (yield-to-worst proxy)"
+      },
+      "portfolio_value": {
+        "confidence": "H",
+        "date": "2026-10-16",
+        "source": "user statement (task prompt)"
+      },
+      "proceeds_credit_loss": {
+        "confidence": "M",
+        "date": "2026-07-28",
+        "source": "Proskauer PC default index 2.51% Q2-2026 x ~40% LGD (LGD assumption)"
+      },
+      "proceeds_yield": {
+        "confidence": "M",
+        "date": "2026-09-08",
+        "source": "user (~9%); BCRED Class I 9.1% distribution rate (CRE Daily, 2026-09-08)"
+      },
+      "sigma": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "assumption: eq vol 16%, IG vol 6%, rho 0 -> 9.9%; rho 0.5 (2022) -> 11.0%; stressed 1.5x = 15%"
+      }
+    },
+    "sponsor_claims": {
+      "_note": "user/fund-quoted yield; no IM supplied",
+      "proceeds_yield": 0.09
+    },
+    "stresses": [
+      {
+        "name": "Equities -20%, bonds flat (60/40 -12%)",
+        "shock": -0.12
+      },
+      {
+        "name": "2022 replay: eq -25%, bonds -17% (60/40 -21.8%)",
+        "shock": -0.218
+      },
+      {
+        "name": "2007-09 peak-to-trough (60/40 -35%)",
+        "shock": -0.35
+      },
+      {
+        "advance_cut": 0.1,
+        "name": "Lender cuts advance 10 pts, flat market",
+        "shock": 0
+      },
+      {
+        "advance_cut": 0.16,
+        "name": "Lender reprices to 50% eq / 75% bonds, flat",
+        "shock": 0
+      },
+      {
+        "advance_cut": 0.1,
+        "name": "-12% market + 10 pt advance cut",
+        "shock": -0.12
+      },
+      {
+        "name": "Mild -8% market (call threshold)",
+        "shock": -0.08
+      }
+    ]
+  },
+  "driver_metric": {
+    "name": "p_margin_call",
+    "rule": "max 0.05",
+    "value": 0.2219
+  },
+  "gate_checks": [
+    {
+      "metric": "carry_spread",
+      "rule": "min 0.02",
+      "shortfall_rel": 0,
+      "status": "PASS",
+      "value": 0.0252
+    },
+    {
+      "metric": "p_margin_call",
+      "rule": "max 0.05",
+      "shortfall_rel": 3.438,
+      "status": "FAIL",
+      "value": 0.2219
+    },
+    {
+      "metric": "p_forced_liquidation",
+      "rule": "max 0.01",
+      "shortfall_rel": 0,
+      "status": "PASS",
+      "value": 0.0061
+    },
+    {
+      "metric": "ltv0",
+      "rule": "max 0.5",
+      "shortfall_rel": 0,
+      "status": "PASS",
+      "value": 0.45454545454545453
+    },
+    {
+      "metric": "cvar_95",
+      "rule": "max 0.35",
+      "shortfall_rel": 0,
+      "status": "PASS",
+      "value": 0.3047131329977903
+    },
+    {
+      "metric": "ltv0_lending",
+      "rule": "max 0.55",
+      "shortfall_rel": 0.0874,
+      "status": "SOFT_FAIL",
+      "value": 0.5980861244019139
+    }
+  ],
+  "key_metrics": {
+    "carry_spread": 0.0252,
+    "cvar_95": 0.3047131329977903,
+    "ltv0": 0.45454545454545453,
+    "ltv0_lending": 0.5980861244019139,
+    "p_forced_liquidation": 0.0061,
+    "p_margin_call": 0.2219
+  },
+  "kill_risks": [
+    "leverage on collateral with lender right to re-margin at discretion and no cure period",
+    "liquidity mismatch: margin cure must be met in days, proceeds asset is quarterly with a 5% NAV gate and 2026 fills of 12-52%"
+  ],
+  "last_run_ts": "2026-10-16T04:19:44+00:00",
+  "last_score": 31.9,
+  "last_verdict": "DECLINE",
+  "name": "Lombard: USD 1.0M against 2.2M 60/40",
+  "score_delta": 0,
+  "sizing": "Max ~USD 760k (stressed sizing), only with advance rates fixed in writing and ≥USD 55k cash outside the pledge.",
+  "status": "watch",
+  "test_case": true,
+  "thesis": "Carry of ~2.5% holds only while SOFR stays below ~5.9% and the 60/40 book falls less than 8% before the fund can be exited."
+}

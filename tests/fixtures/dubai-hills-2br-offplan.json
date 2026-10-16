@@ -1,0 +1,299 @@
+{
+  "asset_class": "real_estate",
+  "country": "AE",
+  "deal_json": {
+    "asset_class": "real_estate",
+    "benchmark_rate": 0.035,
+    "benchmark_source": {
+      "confidence": "M",
+      "date": "2026-06-30",
+      "source": "Fitch: institutional govt MMF net yield 3.45%, prime 3.59% at 30-Jun-2026; Fed funds 3.50-3.75% held all 2026 (cranedata.com)"
+    },
+    "country": "AE",
+    "currency": "AED",
+    "derived": {
+      "exit_cap": 0.0475,
+      "loan": 1550000,
+      "premium": 500000,
+      "price": 3100000,
+      "price_per_sqft": 2480,
+      "sell_cost": 0.02,
+      "t0_cash": 1738550,
+      "t1_cash": 1598590,
+      "total_acquisition_cost": 3337140
+    },
+    "name": "Dubai Hills 2BR off-plan resale",
+    "project": {
+      "capex": [
+        1738550,
+        1598590
+      ],
+      "capitalise_grace_interest": false,
+      "currency": "AED",
+      "debt_draw_year": 1,
+      "debt_grace_years": 0,
+      "debt_pct": 0.46446957574449976,
+      "debt_rate": 0.046,
+      "debt_tenor": 25,
+      "depreciation_years": 0,
+      "discount_rate": 0.12,
+      "dsra_months": 0,
+      "equity_share": 1,
+      "fixed_opex": 34000,
+      "fx_haircut": 0,
+      "name": "Dubai Hills 2BR off-plan resale",
+      "operating_years": 7,
+      "opex_escalation": 0.03,
+      "opex_pct_revenue": 0.05,
+      "ramp": [
+        1
+      ],
+      "revenue_escalation": 0.015,
+      "revenue_y1": 166250,
+      "tax_rate": 0,
+      "terminal_multiple_ebitda": 20.63157894736842
+    },
+    "project_mc": {
+      "capex_overrun_mean": 0,
+      "capex_overrun_sd": 0.01,
+      "dscr_covenant": 1,
+      "exit_multiple_sd": 0.15,
+      "fx_deval_prob_yr": 0.003,
+      "fx_deval_size": 0.2,
+      "fx_local_share": 1,
+      "hurdle": 0.12,
+      "n": 3000,
+      "opex_sd": 0.1,
+      "ramp_delay_prob": 0.35,
+      "rate_sd": 0.01,
+      "relet_years": 1,
+      "revenue_sd": 0.1,
+      "seed": 11,
+      "tenant_default_prob": 0.1,
+      "tenant_share": 1
+    },
+    "project_mc_basis": {
+      "capex": "price contractually fixed; overrun ~0",
+      "exit_multiple_sd": "0.15: terminal value is the dominant share of equity value; Dubai prices moved +60% 2022-Q1-25 and -5..-15% since end-2025 (S&P via truhauz)",
+      "fx": "AED/USD peg; 0.3%/yr prob of 20% step - tail only, benchmark is USD. L",
+      "ramp_delay_prob": "0.35: Q1-2026 only ~43% of scheduled Dubai units delivered (Cavendish Maxwell); delay modelled as a zero-rent first year with mortgage already drawn (conservative)",
+      "tenant_default_prob": "0.10 over 7y, single tenant = 100% of revenue, 1-year re-let (annual granularity overstates a 2-4 month void; offsets non-payment/legal time). L"
+    },
+    "scenarios": {
+      "base": {},
+      "downside_P10": {
+        "debt_rate": 0.056,
+        "revenue_escalation": 0,
+        "revenue_y1": 149625,
+        "terminal_multiple_ebitda": 18.666666666666668
+      },
+      "exit_cap_4.0pct_entry_yield": {
+        "terminal_multiple_ebitda": 24.5
+      },
+      "exit_cap_4.25pct": {
+        "terminal_multiple_ebitda": 23.05882352941176
+      },
+      "exit_cap_5.25pct": {
+        "terminal_multiple_ebitda": 18.666666666666668
+      },
+      "handover_delay_12m": {
+        "capex": [
+          1738550,
+          0,
+          1598590
+        ],
+        "debt_draw_year": 2
+      },
+      "handover_delay_12m_fixed_exit": {
+        "capex": [
+          1738550,
+          0,
+          1598590
+        ],
+        "debt_draw_year": 2,
+        "operating_years": 6
+      },
+      "hold_6y_from_handover": {
+        "operating_years": 6
+      },
+      "kill_delay_plus_supply_wave": {
+        "capex": [
+          1738550,
+          0,
+          1598590
+        ],
+        "debt_draw_year": 2,
+        "debt_rate": 0.056,
+        "operating_years": 6,
+        "revenue_y1": 141312.5,
+        "terminal_multiple_ebitda": 17.818181818181817
+      },
+      "rate_reset_+200bp": {
+        "debt_rate": 0.066
+      },
+      "supply_wave": {
+        "revenue_y1": 141312.5,
+        "terminal_multiple_ebitda": 17.818181818181817
+      },
+      "user_case_190k": {
+        "revenue_escalation": 0.02,
+        "revenue_y1": 180500
+      }
+    },
+    "sources": {
+      "capex": {
+        "confidence": "M",
+        "date": "2026-10-16",
+        "source": "User: price AED 3.1M, orig 2.6M, 40% paid, 60% at handover Q4-2027 -> t0 = 1.04M paid-up + 0.5M premium + DLD 4% (124k) + DLD admin 4.2k (L) + agency 2%+VAT (65.1k) + dev NOC 5.25k (L); t1 = 1.56M handover + bank fee 1%+VAT, mortgage reg 0.25%+290, valuation 3.15k, fit-out/snagging 15k (L)"
+      },
+      "debt_draw_year": {
+        "confidence": "H",
+        "date": "2026-10-16",
+        "source": "Mortgage drawn at handover (t=1) to fund 60% payment"
+      },
+      "debt_pct": {
+        "confidence": "M",
+        "date": "2026-10-16",
+        "source": "User: 50% LTV on AED 3.1M = AED 1.55M at handover, expressed as share of total capex"
+      },
+      "debt_rate": {
+        "confidence": "M",
+        "date": "2026-10-16",
+        "source": "User ~4.6%; market: resident fixed 3.75-4.19%, off-plan 3y fixed 4.24%, variable 3M EIBOR+0.70-1.49% (huspy.com, 2026)"
+      },
+      "debt_tenor": {
+        "confidence": "M",
+        "date": "2026-10-16",
+        "source": "Assumption: 25-year annuity, balance repaid at exit (balloon)"
+      },
+      "depreciation_years": {
+        "confidence": "H",
+        "date": "2026-10-16",
+        "source": "n/a (no tax)"
+      },
+      "discount_rate": {
+        "confidence": "H",
+        "date": "2026-10-16",
+        "source": "Gate equity IRR hurdle 12% (config/gate_thresholds.json, AE uplift 0)"
+      },
+      "fixed_opex": {
+        "confidence": "M",
+        "date": "2026-10-16",
+        "source": "User: service charge AED 22/sqft x 1,250 = 27,500 (vs community avg AED 16/sqft, range 13-22, realestateclubdubai Feb-2026) + maintenance 5,000 + insurance 1,500 (L)"
+      },
+      "fx_haircut": {
+        "confidence": "H",
+        "date": "2026-10-16",
+        "source": "AED pegged 3.6725/USD since 1997; no haircut"
+      },
+      "operating_years": {
+        "confidence": "M",
+        "date": "2026-10-16",
+        "source": "User: hold 7 years; read as 7 years after handover (exit ~Q4 2034). 6y variant in scenarios"
+      },
+      "opex_escalation": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Assumption 3% p.a."
+      },
+      "opex_pct_revenue": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Assumption: 5% property management / leasing"
+      },
+      "ramp": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Assume let from first operating year; vacancy in revenue_y1"
+      },
+      "revenue_escalation": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Assumption: 1.5% p.a.; 146k units scheduled 2027 (Cavendish Maxwell via realestateclubdubai, Jul-2026) caps rent growth"
+      },
+      "revenue_y1": {
+        "confidence": "M",
+        "date": "2026-10-16",
+        "source": "Comps: Bayut 2BR Dubai Hills avg ask AED 159.6k, DLD Ejari avg 151.5k (bayut.com, Oct-2026); new-build ~1,250-1,290 sqft comps 160-175k (The Grove 1,282 sqft 175k; Golf Grand ~1,150 sqft 155-160k). Base gross 175k x (1-5% vacancy). User expects 190k (sponsor case)."
+      },
+      "tax_rate": {
+        "confidence": "H",
+        "date": "2026-10-16",
+        "source": "UAE: no personal income tax on rental income (individual holder)"
+      },
+      "terminal_multiple_ebitda": {
+        "confidence": "M",
+        "date": "2026-10-16",
+        "source": "Exit cap 4.75% on NOI = comps net yield ~4.5% (gross 6.0-6.3% Bayut/DLD H1-2026 via truhauz.com, less ~1.5-2.5pt costs per mirihomes.com) +25bp drift (supply, building age); x(1-2% selling costs)"
+      }
+    },
+    "sponsor_claims": {
+      "gross_rent": 190000,
+      "note": "user expectation, no IRR claimed; seller's original price 2.6M"
+    }
+  },
+  "driver_metric": {
+    "name": "p_equity_loss",
+    "rule": "max 0.15",
+    "value": 0.7
+  },
+  "gate_checks": [
+    {
+      "metric": "equity_irr",
+      "rule": "min 0.12",
+      "shortfall_rel": 1.1133,
+      "status": "FAIL",
+      "value": -0.013593359845371729
+    },
+    {
+      "metric": "net_yield",
+      "rule": "min 0.06",
+      "shortfall_rel": 0.381,
+      "status": "FAIL",
+      "value": 0.0371388374476348
+    },
+    {
+      "metric": "excess_vs_benchmark",
+      "rule": "min 0.03",
+      "shortfall_rel": 2.6198,
+      "status": "FAIL",
+      "value": -0.048593359845371734
+    },
+    {
+      "metric": "p_equity_loss",
+      "rule": "max 0.15",
+      "shortfall_rel": 3.6667,
+      "status": "FAIL",
+      "value": 0.7
+    },
+    {
+      "metric": "ltv",
+      "rule": "max 0.6",
+      "shortfall_rel": 0,
+      "status": "PASS",
+      "value": 0.5
+    }
+  ],
+  "key_metrics": {
+    "equity_irr": -0.013593359845371729,
+    "excess_vs_benchmark": -0.048593359845371734,
+    "ltv": 0.5,
+    "min_dscr_amort": 1.1735495651526366,
+    "net_yield": 0.0371388374476348,
+    "p_dscr_breach": 0.514,
+    "p_equity_loss": 0.7,
+    "p_irr_below_hurdle": 1
+  },
+  "kill_risks": [
+    "title / land ownership not verifiable"
+  ],
+  "last_run_ts": "2026-10-16T04:19:44+00:00",
+  "last_score": 7.4,
+  "last_verdict": "DECLINE",
+  "name": "Dubai Hills 2BR off-plan resale",
+  "score_delta": 0,
+  "sizing": "Pay ≤ AED 2.60M to match the money-market fund; ≤ AED 2.32M to beat it by 3 pts (asking 3.1M).",
+  "status": "watch",
+  "test_case": true,
+  "thesis": "Only works if same-building achieved rents reach ≥ AED 221k at the 2027 handover peak."
+}

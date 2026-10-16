@@ -1,0 +1,365 @@
+{
+  "asset_class": "dc_digital_infra",
+  "country": "NG",
+  "deal_json": {
+    "asset_class": "dc_digital_infra",
+    "benchmark_rate": 0.0428,
+    "country": "NG",
+    "currency": "USD",
+    "market_register": {
+      "band_a_tariff_ngn_kwh": {
+        "conf": "M",
+        "date": "2024-07-01 (latest found)",
+        "src": "https://www.arise.tv/power-distribution-companies-raise-tariffs-for-band-a-customers-from-n206-80-kwh-to-n209-5-kwh/",
+        "value": 209.5
+      },
+      "gas_genset_usd_kwh": {
+        "conf": "L",
+        "src": "inference from techcabal 2025-11-04 diesel figures",
+        "value": 0.14
+      },
+      "ng_eurobond_2036_yield": {
+        "conf": "M",
+        "date": "2026-08-10",
+        "src": "https://dmo.gov.ng/fgn-bonds/eurobonds-trading/6006-nigeria-s-eurobonds-closing-prices-and-yields-as-at-monday-august-10-2026/file",
+        "value": 0.07264
+      },
+      "ngn_usd_nfem": {
+        "conf": "M",
+        "date": "2026-10-09",
+        "src": "https://techeconomy.ng/dollar-to-naira-exchange-rate-today-october-12-2026",
+        "value": 1332.49
+      },
+      "ngn_usd_parallel": {
+        "conf": "M",
+        "date": "2026-10-10",
+        "src": "same",
+        "value": 1375
+      },
+      "sp_rating": {
+        "conf": "M",
+        "src": "https://techeconomy.ng/why-sp-upgraded-nigerias-credit-rating-to-b",
+        "value": "B (stable), upgraded 2026-05-15"
+      },
+      "tbill_3m": {
+        "conf": "M",
+        "date": "2026-10-14",
+        "src": "https://www.slickcharts.com/treasury/3-month",
+        "value": 0.0428
+      }
+    },
+    "name": "Lagos 10MW IT powered-land + shell DC (25% equity)",
+    "project": {
+      "capex": [
+        60094977,
+        42766476
+      ],
+      "capitalise_grace_interest": false,
+      "currency": "USD",
+      "debt_draw_year": null,
+      "debt_grace_years": 2,
+      "debt_pct": 0.65,
+      "debt_rate": 0.09,
+      "debt_tenor": 10,
+      "depreciation_years": 15,
+      "discount_rate": 0.2,
+      "dsra_months": 6,
+      "equity_share": 0.25,
+      "fixed_opex": 0,
+      "fx_haircut": 0.02,
+      "name": "Lagos 10MW IT powered-land + shell DC (25% equity)",
+      "operating_years": 12,
+      "opex_escalation": 0.025,
+      "opex_pct_revenue": 0.32,
+      "ramp": [
+        0.4,
+        0.7,
+        0.85,
+        0.9
+      ],
+      "revenue_escalation": 0.02,
+      "revenue_y1": 19200000,
+      "tax_rate": 0.34,
+      "terminal_multiple_ebitda": 10
+    },
+    "project_mc": {
+      "capex_overrun_mean": 0.1,
+      "capex_overrun_sd": 0.12,
+      "dscr_covenant": 1.2,
+      "exit_multiple_sd": 0.25,
+      "fx_deval_prob_yr": 0.1,
+      "fx_deval_size": 0.25,
+      "fx_local_share": 0.6,
+      "hurdle": 0.2,
+      "n": 3000,
+      "opex_sd": 0.12,
+      "ramp_delay_prob": 0.35,
+      "rate_sd": 0.01,
+      "relet_years": 3,
+      "revenue_sd": 0.15,
+      "seed": 11,
+      "tenant_default_prob": 0.15,
+      "tenant_share": 0.65
+    },
+    "scenarios": {
+      "base": {},
+      "capex_x1.25_cod_plus6m": {
+        "capex": [
+          75118721.25,
+          53458095
+        ],
+        "ramp": [
+          0.2,
+          0.6,
+          0.8,
+          0.9
+        ]
+      },
+      "downside_p10": {
+        "capex": [
+          69109223.55,
+          49181447.4
+        ],
+        "ramp": [
+          0,
+          0.4,
+          0.7,
+          0.85,
+          0.9
+        ],
+        "revenue_y1": 16320000,
+        "terminal_multiple_ebitda": 8
+      },
+      "kill_anchor_LOI_not_signed": {
+        "ramp": [
+          0.15,
+          0.3,
+          0.5,
+          0.75,
+          0.9
+        ]
+      },
+      "kill_fx_cbn_rate_dislocation": {
+        "fx_haircut": 0.18
+      },
+      "kill_grid_energisation_slip_18m": {
+        "ramp": [
+          0,
+          0.2,
+          0.55,
+          0.8,
+          0.9
+        ]
+      },
+      "pioneer_status_tax_holiday": {
+        "tax_rate": 0
+      },
+      "power_passthrough_leakage": {
+        "opex_pct_revenue": 0.48
+      },
+      "rent_140": {
+        "revenue_y1": 16800000
+      },
+      "sponsor_reconstructed": {
+        "capex": [
+          57000000,
+          38000000
+        ],
+        "dsra_months": 0,
+        "fx_haircut": 0,
+        "operating_years": 10,
+        "ramp": [
+          0.4,
+          0.75,
+          0.95
+        ],
+        "revenue_escalation": 0.03,
+        "tax_rate": 0,
+        "terminal_multiple_ebitda": 15
+      }
+    },
+    "sources": {
+      "capex": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Sponsor teaser: USD 95M, 60/35 + 5% contingency; + IDC/2% fees computed in run_analysis.py"
+      },
+      "debt_grace_years": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Sponsor teaser: 2 years interest-only"
+      },
+      "debt_pct": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Sponsor teaser: 65% DFI debt"
+      },
+      "debt_rate": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Sponsor teaser 9% all-in; cf. NG Eurobond 2036 7.26% (DMO 2026-08-10)"
+      },
+      "debt_tenor": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Read as 12y total = 2y IO + 10y amortising (skill convention)"
+      },
+      "depreciation_years": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Assumption: 15-yr straight-line proxy for capital allowances"
+      },
+      "discount_rate": {
+        "confidence": "H",
+        "date": "2026-10-16",
+        "source": "Gate: 14% DC hurdle + 6% NG uplift (config/gate_thresholds.json)"
+      },
+      "dsra_months": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Assumption: DFI-typical 6-month DSRA (skill reference)"
+      },
+      "equity_share": {
+        "confidence": "H",
+        "date": "2026-10-16",
+        "source": "Offer: 25% equity"
+      },
+      "fx_haircut": {
+        "confidence": "M",
+        "date": "2026-10-12",
+        "source": "Assumption: 2% conversion spread/lag on NGN-settled share; NFEM 1,332.49 vs parallel ~1,375 (techeconomy 2026-10-12)"
+      },
+      "operating_years": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Assumption: 12-yr hold post-COD = loan life (no balloon)"
+      },
+      "opex_pct_revenue": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Sponsor teaser ~32%; read as excl. power (power_check.json)"
+      },
+      "ramp": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Our assumption: sponsor 40/75/95 haircut to 40/70/85/90 (4 MW spec vs new Lagos supply: OADC 24 MW, Rack Centre 12 MW)"
+      },
+      "revenue_escalation": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Assumption: 2% USD indexation (sponsor not stated)"
+      },
+      "revenue_y1": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Sponsor teaser: USD 160/kW/month x 10 MW (6 MW anchor LOI unsigned, 4 MW speculative)"
+      },
+      "tax_rate": {
+        "confidence": "M",
+        "date": "2026-05-29",
+        "source": "PwC Tax Summaries Nigeria: CIT 30% + 4% development levy (reviewed 2026-05-29)"
+      },
+      "terminal_multiple_ebitda": {
+        "confidence": "L",
+        "date": "2026-10-16",
+        "source": "Assumption 10x: frontier discount to DLR 20.1x (Q4-25) / EQIX 29x (Q2-26), opencapital.sh"
+      }
+    },
+    "sponsor_claims": {
+      "anchor_mw": 6,
+      "anchor_status": "LOI, not signed",
+      "capex_split": [
+        0.6,
+        0.35,
+        0.05
+      ],
+      "capex_usd": 95000000,
+      "debt_pct": 0.65,
+      "debt_rate": 0.09,
+      "debt_term": "12 years incl. 2 IO",
+      "equity_irr": 0.24,
+      "opex_pct_revenue": 0.32,
+      "payment": "USD billed; tenant may pay NGN at CBN rate",
+      "pue": 1.45,
+      "ramp": [
+        0.4,
+        0.75,
+        0.95
+      ],
+      "rent_usd_kw_month": 160,
+      "source": "sponsor teaser (no model supplied)"
+    }
+  },
+  "driver_metric": {
+    "name": "p_dscr_breach",
+    "rule": "max 0.15",
+    "value": 0.9483333333333334
+  },
+  "gate_checks": [
+    {
+      "metric": "equity_irr",
+      "rule": "min 0.2",
+      "shortfall_rel": 0.3534,
+      "status": "FAIL",
+      "value": 0.1293280071978971
+    },
+    {
+      "metric": "llcr",
+      "rule": "min 1.35",
+      "shortfall_rel": 0.1373,
+      "status": "SOFT_FAIL",
+      "value": 1.1646302986478914
+    },
+    {
+      "metric": "min_dscr_amort",
+      "rule": "min 1.3",
+      "shortfall_rel": 0.1645,
+      "status": "FAIL",
+      "value": 1.0860905234037075
+    },
+    {
+      "metric": "p_equity_loss",
+      "rule": "max 0.1",
+      "shortfall_rel": 0.2867,
+      "status": "FAIL",
+      "value": 0.12866666666666668
+    },
+    {
+      "metric": "p_irr_below_hurdle",
+      "rule": "max 0.35",
+      "shortfall_rel": 1.839,
+      "status": "FAIL",
+      "value": 0.9936666666666667
+    },
+    {
+      "metric": "p_dscr_breach",
+      "rule": "max 0.15",
+      "shortfall_rel": 5.3222,
+      "status": "FAIL",
+      "value": 0.9483333333333334
+    }
+  ],
+  "key_metrics": {
+    "equity_irr": 0.1293280071978971,
+    "excess_vs_benchmark": 0.0865280071978971,
+    "llcr": 1.1646302986478914,
+    "min_dscr_amort": 1.0860905234037075,
+    "p_dscr_breach": 0.9483333333333334,
+    "p_equity_loss": 0.12866666666666668,
+    "p_irr_below_hurdle": 0.9936666666666667
+  },
+  "kill_risks": [
+    "single point of failure with no mitigant (offtaker, grid connection, sole permit)",
+    "FX non-convertibility with no hedge or USD-indexed revenue",
+    "title / land ownership not verifiable"
+  ],
+  "last_run_ts": "2026-10-16T04:19:44+00:00",
+  "last_score": 0,
+  "last_verdict": "DECLINE",
+  "name": "Lagos 10 MW powered land + shell DC",
+  "score_delta": 0,
+  "sizing": "Needs ~USD 227/kW/month rent (offered 160) or ~USD 67M hard capex (offered 95M) for the 20% NG hurdle.",
+  "status": "watch",
+  "test_case": true,
+  "thesis": "Works only if a signed USD take-or-pay anchor (≥6 MW, ≥USD 190/kW/month, power passed through) replaces the unsigned LOI."
+}
